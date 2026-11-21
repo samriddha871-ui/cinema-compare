@@ -1,13 +1,6 @@
 var movies=[{id:'m1',t:'Sample Movie One',l:'Nepali · 2h 05m'},{id:'m2',t:'Sample Movie Two',l:'Hindi · 2h 30m'},{id:'m3',t:'Sample Movie Three',l:'English · 1h 55m'}];
-var halls=[{id:'h1',n:'Sample Cinema, Durbar Marg',km:1.2,u:'https://example.com/cinema-1'},{id:'h2',n:'Sample Cinema, Lalitpur',km:3.4,u:'https://example.com/cinema-2'},{id:'h3',n:'Sample Cinema, Kalanki',km:5.1,u:'https://example.com/cinema-3'},{id:'h4',n:'Sample Cinema, Bhaktapur',km:9.0,u:'https://example.com/cinema-4'}];
-var times=[['10:30',630],['13:15',795],['16:00',960],['19:00',1140]];
-var seed=7;function rnd(){seed=(seed*9301+49297)%233280;return seed/233280}
+var API='https://cinema-backend-75q3.onrender.com'; // change to your online backend address later
 var shows=[];
-movies.forEach(function(m){halls.forEach(function(h){times.forEach(function(t,i){
-  var f=i==3&&rnd()>.4?'Premium':(rnd()>.6?'3D':'2D');
-  var base=f=='Premium'?600:f=='3D'?450:300;base+=Math.round(rnd()*4)*25;
-  shows.push({m:m.id,h:h,time:t[0],min:t[1],fmt:f,lo:base,hi:base+Math.round(150+rnd()*150),tot:96,sold:Math.round(10+rnd()*80),open:false,key:m.id+h.id+t[0]});
-})})});
 var cur='m1',el=function(i){return document.getElementById(i)},flash=null;
 function renderMovies(){el('movies').innerHTML=movies.map(function(m){return '<button class="movie" data-m="'+m.id+'" aria-pressed="'+(m.id==cur)+'">'+m.t+'<small>'+m.l+'</small></button>'}).join('')}
 function seatGrid(s){var r=mulberry(s.key),out='';var sold=s.sold,idx=[];for(var i=0;i<96;i++)idx.push(i);
@@ -42,11 +35,14 @@ document.addEventListener('click',function(e){
 el('go').addEventListener('click',function(){el('dlg').close()});
 el('fmt').onchange=el('sort').onchange=render;
 var last=Date.now();
-setInterval(function(){
-  var s=shows[Math.floor(Math.random()*shows.length)];
-  if(s.tot-s.sold>3)s.sold+=1+Math.floor(Math.random()*3);
-  if(Math.random()<.25)s.lo+=Math.random()<.5?-25:25,s.hi=Math.max(s.hi,s.lo+100);
-  flash=s.key;last=Date.now();render();setTimeout(function(){flash=null},1300);
-},6000);
+fetch(API+'/api/shows').then(function(r){return r.json()}).then(function(data){
+  shows=data.map(function(s){s.open=false;return s});last=Date.now();render();
+}).catch(function(){el('list').innerHTML='<div class="empty">Cannot reach the server. Is it running?</div>'});
+var live=new EventSource(API+'/api/live');
+live.onmessage=function(ev){
+  var u=JSON.parse(ev.data),s=find(u.key);if(!s)return;
+  s.sold=u.sold;s.lo=u.lo;s.hi=u.hi;flash=s.key;last=Date.now();render();
+  setTimeout(function(){flash=null},1300);
+};
 setInterval(function(){var sec=Math.round((Date.now()-last)/1000);el('stamp').textContent=sec<3?'Updated just now':'Updated '+sec+'s ago'},1000);
 renderMovies();render();
