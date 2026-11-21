@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kathmandu Cinema Compare (prototype)</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <span class="demo">Prototype with sample data. Halls, prices and links are placeholders.</span>
+  <h1>Kathmandu cinema compare</h1>
+  <p class="sub">See every showtime, price range and seat count in one place. When you decide, we send you to the cinema’s own site to pick seats and pay. We never charge anything.</p>
+  <div class="movies" id="movies" role="group" aria-label="Choose a movie"></div>
+  <div class="bar">
+    <label>Format <select id="fmt"><option value="all">All</option><option>2D</option><option>3D</option><option>Premium</option></select></label>
+    <label>Sort by <select id="sort"><option value="price">Cheapest</option><option value="km">Nearest</option><option value="time">Earliest</option></select></label>
+    <span class="stamp"><span class="dot"></span><span id="stamp">Updated just now</span></span>
+  </div>
+  <div id="list"></div>
+</div>
+<dialog id="dlg">
+  <h2>Continue on the cinema’s site</h2>
+  <p id="dtext"></p>
+  <p class="meta">You pick seats and pay there. This app only compares and redirects.</p>
+  <div class="row"><button class="btn g" id="cancel">Stay here</button><a class="btn p" id="go" target="_blank" rel="noopener">Open booking page</a></div>
+</dialog>
+<script src="app.js"></script>
+</body>
+</html>
